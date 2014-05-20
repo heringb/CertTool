@@ -1,0 +1,26 @@
+#!/bin/bash
+# Making a PEM File
+# see also;: http://www.raywenderlich.com/32960/apple-push-notification-services-in-ios-6-tutorial-part-1
+# (c) Bernhard Hering
+#
+# How to use
+#  ./CertTool ~/path to /aps_development.cer Testname ~/path to keyfile.p12 <False|True> (sandbox or not)
+#
+# ./CertTool ~/Desktop/GillerPush/aps_development.cer GillerDev ~/Desktop/GillerPush/GillerDevelopment.p12 True
+
+
+echo "Start generate Pem File from" $1 $2 $3
+pushcertname="$2Cert.pem"
+openssl x509 -in $1 -inform der -out "$2Cert.pem"
+echo "created $pushcertname"
+openssl pkcs12 -nocerts -out "$2Key.pem" -in $3
+echo "created $2Key.pem"
+cat "$2Cert.pem" "$2Key.pem" > "$2ready.pem"
+echo "created $2ready.pem"
+echo "ok test"
+if $4 ; then
+    openssl s_client -connect gateway.sandbox.push.apple.com:2195 -cert "$2Cert.pem"  -key "$2Key.pem"
+else
+    openssl s_client -connect gateway.push.apple.com:2195 -cert "$2Cert.pem"  -key "$2Key.pem"
+fi
+echo "your cert ist ready: $2Key.pem"
